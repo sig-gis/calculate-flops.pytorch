@@ -110,10 +110,72 @@ You can also use this model urls of huggingface platform to calculate it FLOPs.
 from calflops import calculate_flops_hf
 
 batch_size, max_seq_length = 1, 128
-model_name = "https://huggingface.co/THUDM/chatglm2-6b" # THUDM/chatglm2-6b
+model_name = "https://huggingface.co/THUDM/glm-4-9b-chat" # THUDM/glm-4-9b-chat
 flops, macs, params = calculate_flops_hf(model_name=model_name, input_shape=(batch_size, max_seq_length))
 print("%s FLOPs:%s  MACs:%s  Params:%s \n" %(model_name, flops, macs, params))
 ```
+
+```
+------------------------------------- Calculate Flops Results -------------------------------------
+Notations:
+number of parameters (Params), number of multiply-accumulate operations(MACs),
+number of floating-point operations (FLOPs), floating-point operations per second (FLOPS),
+fwd FLOPs (model forward propagation FLOPs), bwd FLOPs (model backward propagation FLOPs),
+default model backpropagation takes 2.00 times as much computation as forward propagation.
+
+Total Training Params:                                                  9.4 B
+fwd MACs:                                                               1.12 TMACs
+fwd FLOPs:                                                              2.25 TFLOPS
+fwd+bwd MACs:                                                           3.37 TMACs
+fwd+bwd FLOPs:                                                          6.74 TFLOPS
+
+-------------------------------- Detailed Calculated FLOPs Results --------------------------------
+Each module caculated is listed after its name in the following order:
+params, percentage of total params, MACs, percentage of total MACs, FLOPS, percentage of total FLOPs
+
+Note: 1. A module can have torch.nn.module or torch.nn.functional to compute logits (e.g. CrossEntropyLoss).
+ They are not counted as submodules in calflops and not to be printed out. However they make up the difference between a parent's MACs and the sum of its submodules'.
+2. Number of floating-point operations is a theoretical estimation, thus FLOPS computed using that could be larger than the maximum system throughput.
+
+ChatGLMForConditionalGeneration(
+  9.4 B = 100% Params, 1.12 TMACs = 100% MACs, 2.25 TFLOPS = 50% FLOPs
+  (transformer): ChatGLMModel(
+    9.4 B = 100% Params, 1.12 TMACs = 100% MACs, 2.25 TFLOPS = 50% FLOPs
+    (embedding): Embedding(
+      620.76 M = 6.6% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs
+      (word_embeddings): Embedding(620.76 M = 6.6% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs, 151552, 4096)
+    )
+    (rotary_pos_emb): RotaryEmbedding(0 = 0% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs)
+    (encoder): GLMTransformer(
+      8.16 B = 86.79% Params, 1.04 TMACs = 92.93% MACs, 2.09 TFLOPS = 46.46% FLOPs
+      (layers): ModuleList(
+        (0-39): 40 x GLMBlock(
+          203.96 M = 2.17% Params, 26.11 GMACs = 2.32% MACs, 52.21 GFLOPS = 1.16% FLOPs
+          (input_layernorm): RMSNorm(4.1 K = 0% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs)
+          (self_attention): SelfAttention(
+            35.66 M = 0.38% Params, 4.56 GMACs = 0.41% MACs, 9.13 GFLOPS = 0.2% FLOPs
+            (query_key_value): Linear(18.88 M = 0.2% Params, 2.42 GMACs = 0.22% MACs, 4.83 GFLOPS = 0.11% FLOPs, in_features=4096, out_features=4608, bias=True)  
+            (core_attention): CoreAttention(
+              0 = 0% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs
+              (attention_dropout): Dropout(0 = 0% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs, p=0.0, inplace=False)
+            )
+            (dense): Linear(16.78 M = 0.18% Params, 2.15 GMACs = 0.19% MACs, 4.29 GFLOPS = 0.1% FLOPs, in_features=4096, out_features=4096, bias=False)
+          )
+          (post_attention_layernorm): RMSNorm(4.1 K = 0% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs)
+          (mlp): MLP(
+            168.3 M = 1.79% Params, 21.54 GMACs = 1.92% MACs, 43.09 GFLOPS = 0.96% FLOPs
+            (dense_h_to_4h): Linear(112.2 M = 1.19% Params, 14.36 GMACs = 1.28% MACs, 28.72 GFLOPS = 0.64% FLOPs, in_features=4096, out_features=27392, bias=False)
+            (dense_4h_to_h): Linear(56.1 M = 0.6% Params, 7.18 GMACs = 0.64% MACs, 14.36 GFLOPS = 0.32% FLOPs, in_features=13696, out_features=4096, bias=False)
+          )
+        )
+      )
+      (final_layernorm): RMSNorm(4.1 K = 0% Params, 0 MACs = 0% MACs, 0 FLOPS = 0% FLOPs)
+    )
+    (output_layer): Linear(620.76 M = 6.6% Params, 79.46 GMACs = 7.07% MACs, 158.91 GFLOPS = 3.54% FLOPs, in_features=4096, out_features=151552, bias=False)
+  )
+)
+```
+
 
 There are some model uses that require an application first, and you only need to pass the application in through the ```access_token``` to calculate its FLOPs.
 
