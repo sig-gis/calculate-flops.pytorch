@@ -52,7 +52,7 @@ In addition, the implementation process of this package inspired by [ptflops](ht
 #### From PyPI:
 
 ```python
-pip install calflops
+pip install --upgrade calflops
 ```
 
 And you also can download latest `calflops-*-py3-none-any.whl` files from https://pypi.org/project/calflops/ 
