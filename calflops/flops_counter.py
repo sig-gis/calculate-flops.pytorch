@@ -162,7 +162,7 @@ def calculate_flops(model,
             args[index] = args[index].to(device)
 
     if forward_mode == 'forward':
-        _ = model(*args, **kwargs)
+        _ = model(args, **kwargs)
     elif forward_mode == 'generate':
         _ = model.generate(*args, **kwargs)
     else:
