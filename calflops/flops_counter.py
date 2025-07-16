@@ -119,7 +119,7 @@ def calculate_flops(model,
     calculate_flops_pipline.start_flops_calculate(ignore_list=ignore_modules)
 
     device = next(model.parameters()).device
-    model = model.to(device)
+    #model = model.to(device)
 
     if input_shape is not None:
         assert len(args) == 0 and len(
@@ -151,7 +151,7 @@ def calculate_flops(model,
             kwargs = generate_transformer_input(input_shape=None,
                                                 model_tokenizer=transformer_tokenizer,
                                                 device=device)
-
+    """
     if kwargs:
         for key, value in kwargs.items():
             if torch.is_tensor(value):
@@ -160,6 +160,7 @@ def calculate_flops(model,
         kwargs = {}
         for index in range(len(args)):
             args[index] = args[index].to(device)
+    """
 
     if forward_mode == 'forward':
         _ = model(args, **kwargs)
